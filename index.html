@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>12-1 ルーレット</title>
+    <link rel="stylesheet" href="roulette.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        var intervalId;
+        var i = 1; // マス目の数字
+        var rand_num;
+        var nums = []; // 出る値の格納場所
+        var end_num;
+        var x = 4;
+        var y = 4;
+        $(function() {
+            $('#stop').prop('disabled',true);
+            // ボタン実行時の処理
+            $('#start').click(on_start);
+            $('#stop').click(on_stop);
+            $('#reset').click(on_reset);
+            
+            for (n = 1; n <= y; n++) {
+                //tableタグの後ろにtrタグを追加
+                $('#matrix').append('<tr id="tr' + n + '">');
+                
+                // 行の折り返し位置
+                var j = n * x;
+                
+                // マス目の数字作成
+                while (i <= j) {
+                    $('#tr' + n).append('<td id="td' + i + '">' + i + '</td>');
+                    i++;
+                }
+            }
+            
+            // 出る値を配列に格納
+            for(var j = 1; j <= x * y; j++) {
+                nums.push(j);
+            }
+        });
+        
+        // スタートボタンクリック時の動作関数
+        function on_start() {
+            $('#start').prop('disabled', true); // スタートボタンをクリック不可にする
+            $('#stop').prop('disabled',false); // ストップボタンのクリック可にする
+            
+            // ルーレット動作を50ミリ秒で呼び出す
+            intervalId = setInterval(color_change, 50);
+        }
+        
+        // ルーレット動作
+        function color_change() {
+            $('#td' + rand_num).removeClass('color2');
+            $('#td' + rand_num).addClass('color1');
+            
+            rand_num = nums[Math.floor(Math.random() * nums.length)];
+            
+            $('#td' + rand_num).addClass('color2');
+        }
+        
+        // ストップボタンクリック時の動作関数
+        function on_stop() {
+            // ルーレット動作ストップの処理
+            clearInterval(intervalId);
+            
+            $('#stop').prop('disabled', true); // ストップボタンをクリック不可にする
+            $('#start').prop('disabled', false); // スタートボタンをクリック可にする
+            
+            $('#td' + rand_num).addClass('color3');
+            
+            // 出た値の削除
+            end_num = $.inArray(rand_num, nums);
+            nums.splice(end_num, 1);
+            
+            // 値が全て出た時の動作
+            if (nums.length < 1) {
+                $('#start').prop('disabled', true);
+                $('#stop').prop('disabled', true);
+            }
+        }
+        
+        // リセットボタンクリック時の動作関数
+        function on_reset() {
+            // ルーレットを止める
+            clearInterval(intervalId);
+            
+            $('#start').prop('disabled', false); 
+            $('#stop').prop('disabled', true); 
+            
+            //  配列を初期化する
+            nums = [];
+            rand_num = 0;
+            
+            // 背景色の初期化
+            $('td').removeClass('color1 color2 color3 color4');
+            $('td').addClass('color1');
+            
+            // 出る値を配列に格納
+            for(var j = 1; j <= x * y; j++){
+                nums.push(j);
+            }
+        }
+    </script>
+</head>
+<body>
+    <table id="matrix"></table>
+    <div class="buttons">
+        <button id="start">スタート</button>
+        <button id="stop">ストップ</button>
+        <button id="reset">リセット</button>
+    </div>
+</body>
+
+
+</html>
